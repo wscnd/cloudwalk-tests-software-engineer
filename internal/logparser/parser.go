@@ -72,20 +72,7 @@ func (lp *LogParser) parseMatchEvents(lines []string) *Match {
 		// Parse ClientUserinfoChanged Event
 		case strings.Contains(line, "ClientUserinfoChanged"):
 			logs := strings.Split(line, "ClientUserinfoChanged: ")
-
-			eventData := logs[1]
-			playerID := strings.Split(eventData, " ")[0]
-			startIndex := strings.Index(eventData, "n\\") + len("n\\")
-			endIndex := strings.Index(eventData, "\\t")
-			playerNickName := eventData[startIndex:endIndex]
-
-			if _, ok := match.Players[playerID]; !ok {
-				match.Players[playerID] = &PlayerData{
-					Name: playerNickName,
-				}
-			} else {
-				match.Players[playerID].Name = playerNickName
-			}
+			match.updatePlayerInfo(logs[1])
 		}
 	}
 	return match

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type (
@@ -34,6 +35,21 @@ func (m *Match) updatePlayerDeaths(victimID string) {
 		}
 	} else {
 		p.Deaths++
+	}
+}
+
+func (m *Match) updatePlayerInfo(log string) {
+	playerID := strings.Split(log, " ")[0]
+	startIndex := strings.Index(log, "n\\") + len("n\\")
+	endIndex := strings.Index(log, "\\t")
+	playerNickName := log[startIndex:endIndex]
+
+	if _, ok := m.Players[playerID]; !ok {
+		m.Players[playerID] = &PlayerData{
+			Name: playerNickName,
+		}
+	} else {
+		m.Players[playerID].Name = playerNickName
 	}
 }
 
