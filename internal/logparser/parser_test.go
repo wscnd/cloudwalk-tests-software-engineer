@@ -39,7 +39,7 @@ func TestLogParser_detectMatchesLength(t *testing.T) {
 		matchesLog: make([][]string, 0, 21),
 	}
 
-	err = lp.detectMatches()
+	err = lp.sequentialDetectMatches()
 	require.NoError(t, err)
 
 	expectedMatches := 21
@@ -57,7 +57,7 @@ func TestLogParser_detectMatchesStartAndEnd(t *testing.T) {
 		matchesLog: make([][]string, 0, 21),
 	}
 
-	err = lp.detectMatches()
+	err = lp.sequentialDetectMatches()
 	require.NoError(t, err)
 
 	testCases := []struct {
