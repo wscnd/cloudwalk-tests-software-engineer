@@ -107,11 +107,11 @@ Each line that we are interested appears to have the format of
 
 #### Kill events
 
-- [ ] Player kills.
-- [ ] Deaths by `<world[Killer_ID=1022]>`.
-- [ ] Self-kills (do not count as kills).
-- [ ] Ensure `total_kills` includes all deaths (player and `<world[Killer_ID=1022]>`).
-- [ ] Accurate handling of self-kills and deaths.
+- [x] Player kills.
+- [x] Deaths by `<world[Killer_ID=1022]>`.
+- [x] Self-kills (do not count as kills).
+- [x] Ensure `total_kills` includes all deaths (player and `<world[Killer_ID=1022]>`).
+- [x] Accurate handling of self-kills and deaths.
 - [ ] Classify Kills by Death Cause.
 
 ### Group data
