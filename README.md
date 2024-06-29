@@ -101,9 +101,9 @@ Each line that we are interested appears to have the format of
 
 #### ClientUserinfoChanged events
 
-- [ ] Track `ClientUserinfoChanged` events to maintain accurate player names.
-- [ ] Player name changes during a match.
-- [ ] Multi-word player nicknames
+- [x] Track `ClientUserinfoChanged` events to maintain accurate player names.
+- [x] Player name changes during a match.
+- [x] Multi-word player nicknames
 
 #### Kill events
 
