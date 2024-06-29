@@ -2,11 +2,9 @@ package logparser
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -20,63 +18,6 @@ func NewLogParser(logFile io.Reader, log [][]string) *LogParser {
 		logfile:    logFile,
 		matchesLog: log,
 	}
-}
-
-type (
-	PlayerData struct {
-		Name   string `json:"name"`
-		Kills  int    `json:"kills"`
-		Deaths int    `json:"deaths"`
-	}
-
-	Match struct {
-		TotalKills int
-		Players    map[string]*PlayerData
-		MatchLog   []string
-	}
-
-	Matches []*Match
-)
-
-func (m *Match) MarshalJSON() ([]byte, error) {
-	type matchDataJSON struct {
-		TotalKills int            `json:"total_kills"`
-		Players    []string       `json:"players"`
-		Kills      map[string]int `json:"kills"`
-	}
-
-	data := &matchDataJSON{
-		TotalKills: m.TotalKills,
-		Players:    make([]string, 0, len(m.Players)),
-		Kills:      make(map[string]int, m.TotalKills),
-	}
-
-	for _, player := range m.Players {
-		data.Players = append(data.Players, player.Name)
-		data.Kills[player.Name] = player.Kills
-	}
-
-	return json.Marshal(data)
-}
-
-func (m *Matches) toJSON() error {
-	output := make(map[string]*Match)
-
-	for id, matchData := range *m {
-		matchID := "game-" + strconv.Itoa(id+1)
-		output[matchID] = matchData
-	}
-	jsonOutput, err := json.MarshalIndent(output, "", "  ")
-	if err != nil {
-		return fmt.Errorf("error generating json output: %w", err)
-	}
-
-	err = os.WriteFile("match_data.json", jsonOutput, 0o644)
-	if err != nil {
-		return fmt.Errorf("error writing json file: %w", err)
-	}
-
-	return nil
 }
 
 func (lp *LogParser) processMatches() *Matches {
@@ -198,6 +139,8 @@ func (lp *LogParser) detectMatches() error {
 			}
 		}
 	}
+
+	// Finished parsing the last match
 	if len(lines) != 0 {
 		lp.matchesLog = append(lp.matchesLog, lines)
 	}
@@ -209,10 +152,18 @@ func (lp *LogParser) detectMatches() error {
 	return nil
 }
 
-func Run(file *os.File) {
+func Run(file *os.File) error {
 	log := make([][]string, 0, 21)
+
 	parser := NewLogParser(file, log)
-	parser.detectMatches()
+	if err := parser.detectMatches(); err != nil {
+		return err
+	}
+
 	md := parser.processMatches()
-	md.toJSON()
+	if err := md.toJSON(); err != nil {
+		return err
+	}
+
+	return nil
 }

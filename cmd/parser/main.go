@@ -19,6 +19,7 @@ var (
 	ErrLogInputProvided = errors.New("please provide a file path as an argument")
 	ErrOpeningFile      = errors.New("failed to open file")
 	ErrClosingFile      = errors.New("failed to close file")
+	ErrParsingLogFile   = errors.New("failed to parse log file")
 )
 
 func run() error {
@@ -40,7 +41,9 @@ func run() error {
 	// -------------------------------------------------------------------------
 	// Parsing file
 
-	logparser.Run(file)
+	if err := logparser.Run(file); err != nil {
+		return fmt.Errorf("%w: %s", ErrParsingLogFile, err)
+	}
 
 	return nil
 }
