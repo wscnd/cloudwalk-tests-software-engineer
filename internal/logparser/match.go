@@ -17,6 +17,26 @@ type (
 	Matches []*Match
 )
 
+func (m *Match) updatePlayerKill(killerID string) {
+	if p, ok := m.Players[killerID]; !ok {
+		m.Players[killerID] = &PlayerData{
+			Kills: 1,
+		}
+	} else {
+		p.Kills++
+	}
+}
+
+func (m *Match) updatePlayerDeaths(victimID string) {
+	if p, ok := m.Players[victimID]; !ok {
+		m.Players[victimID] = &PlayerData{
+			Deaths: 1,
+		}
+	} else {
+		p.Deaths++
+	}
+}
+
 func (m *Match) MarshalJSON() ([]byte, error) {
 	type matchDataJSON struct {
 		TotalKills int            `json:"total_kills"`
@@ -38,10 +58,10 @@ func (m *Match) MarshalJSON() ([]byte, error) {
 	return json.Marshal(data)
 }
 
-func (m *Matches) toJSON() error {
+func (ms *Matches) toJSON() error {
 	output := make(map[string]*Match)
 
-	for id, matchData := range *m {
+	for id, matchData := range *ms {
 		matchID := "game-" + strconv.Itoa(id+1)
 		output[matchID] = matchData
 	}

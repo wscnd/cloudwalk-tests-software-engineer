@@ -57,40 +57,16 @@ func (lp *LogParser) parseMatchEvents(lines []string) *Match {
 			switch {
 			// case world killed
 			case killerID == "1022":
-				if p, ok := match.Players[victimID]; !ok {
-					match.Players[victimID] = &PlayerData{
-						Deaths: 1,
-					}
-				} else {
-					p.Deaths++
-				}
+				match.updatePlayerDeaths(victimID)
 
 			// case player killed another player
 			case killerID != victimID:
-				if p, ok := match.Players[killerID]; !ok {
-					match.Players[killerID] = &PlayerData{
-						Kills: 1,
-					}
-				} else {
-					p.Kills++
-				}
-				if p, ok := match.Players[victimID]; !ok {
-					match.Players[victimID] = &PlayerData{
-						Deaths: 1,
-					}
-				} else {
-					p.Deaths++
-				}
+				match.updatePlayerKill(killerID)
+				match.updatePlayerDeaths(victimID)
 
 			// case player killed itself
 			case killerID == victimID:
-				if p, ok := match.Players[victimID]; !ok {
-					match.Players[victimID] = &PlayerData{
-						Deaths: 1,
-					}
-				} else {
-					p.Deaths++
-				}
+				match.updatePlayerDeaths(victimID)
 			}
 
 		// Parse ClientUserinfoChanged Event
