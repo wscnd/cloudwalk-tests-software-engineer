@@ -35,16 +35,15 @@ func TestLogParser_detectMatchesLength(t *testing.T) {
 
 	lp := &LogParser{
 		logfile: file,
-		matches: &Match{
-			Matches: make([][]string, 0, 21),
-		},
+
+		matchesLog: make([][]string, 0, 21),
 	}
 
 	err = lp.detectMatches()
 	require.NoError(t, err)
 
 	expectedMatches := 21
-	actualMatches := len(lp.matches.Matches)
+	actualMatches := len(lp.matchesLog)
 	require.Equal(t, expectedMatches, actualMatches)
 }
 
@@ -54,10 +53,8 @@ func TestLogParser_detectMatchesStartAndEnd(t *testing.T) {
 	defer teardown()
 
 	lp := &LogParser{
-		logfile: file,
-		matches: &Match{
-			Matches: make([][]string, 0, 21),
-		},
+		logfile:    file,
+		matchesLog: make([][]string, 0, 21),
 	}
 
 	err = lp.detectMatches()
@@ -178,7 +175,7 @@ func TestLogParser_detectMatchesStartAndEnd(t *testing.T) {
 	for tcs := 0; tcs < len(testCases); tcs++ {
 		tc := testCases[tcs]
 		t.Run(tc.name, func(t *testing.T) {
-			match := lp.matches.Matches[tcs]
+			match := lp.matchesLog[tcs]
 
 			firstTiming := strings.Fields(match[0])[0]
 			lastTiming := strings.Fields(match[len(match)-1])[0]
