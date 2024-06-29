@@ -101,21 +101,22 @@ Each line that we are interested appears to have the format of
 
 #### ClientUserinfoChanged events
 
-- [ ] Track `ClientUserinfoChanged` events to maintain accurate player names.
-- [ ] Player name changes during a match.
-- [ ] Multi-word player nicknames
+- [x] Track `ClientUserinfoChanged` events to maintain accurate player names.
+- [x] Player name changes during a match.
+- [x] Multi-word player nicknames
 
 #### Kill events
 
-- [ ] Player kills.
-- [ ] Deaths by `<world[Killer_ID=1022]>`.
-- [ ] Self-kills (do not count as kills).
-- [ ] Ensure `total_kills` includes all deaths (player and `<world[Killer_ID=1022]>`).
-- [ ] Accurate handling of self-kills and deaths.
+- [x] Player kills.
+- [x] Deaths by `<world[Killer_ID=1022]>`.
+- [x] Self-kills (do not count as kills).
+- [x] Ensure `total_kills` includes all deaths (player and `<world[Killer_ID=1022]>`).
+- [x] Accurate handling of self-kills and deaths.
+- [ ] Classify Kills by Death Cause.
 
 ### Group data
 
-- [ ] Group parsed data by match and output in the specified JSON structure.
+- [x] Group parsed data by match and output in the specified JSON structure.
 
 ---
 
