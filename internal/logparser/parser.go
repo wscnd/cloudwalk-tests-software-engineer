@@ -17,11 +17,13 @@ var (
 
 type LogParser struct {
 	logfile       io.Reader
-	matchesLog    [][]string
-	matchesFound  chan []string
-	matchesParsed chan *Match
+	matchesLog    [][]string    // Accumulated log lines grouped by matches
+	matchesFound  chan []string // Channel for correctly identified match lines
+	matchesParsed chan *Match   // Channel for parsed matches.
 }
 
+// NewLogParser creates a new LogParser instance.
+// The arguments logFile and log are only used for testing.
 func NewLogParser(logFile io.Reader, log [][]string) *LogParser {
 	lp := &LogParser{
 		matchesFound:  make(chan []string),
@@ -38,16 +40,17 @@ func NewLogParser(logFile io.Reader, log [][]string) *LogParser {
 	return lp
 }
 
+// parseMatchEvents parses the given log lines from a indivual match into a Match object.
 func (lp *LogParser) parseMatchEvents(loglines []string) *Match {
 	match := NewMatch(loglines)
 
 	for _, line := range loglines {
 		switch {
-		// Process Kill Event
+		// Handle Kill events
 		case strings.Contains(line, "Kill"):
 			lp.parseKills(line, match)
 
-		// Parse ClientUserinfoChanged Event
+		// Handle ClientUserinfoChanged events
 		case strings.Contains(line, "ClientUserinfoChanged"):
 			logs := strings.Split(line, "ClientUserinfoChanged: ")
 			match.updatePlayerInfo(logs[1])
@@ -56,6 +59,7 @@ func (lp *LogParser) parseMatchEvents(loglines []string) *Match {
 	return match
 }
 
+// parseKills updates the match object with kill event data.
 func (*LogParser) parseKills(line string, match *Match) {
 	eventData := strings.Fields(line)
 
@@ -66,21 +70,23 @@ func (*LogParser) parseKills(line string, match *Match) {
 	victimID := eventData[3]
 
 	switch {
-	// case world killed
+	// Handle the case where world is the killer
 	case killerID == "1022":
 		match.updatePlayerDeaths(victimID)
 
-	// case player killed another player
+	// Handle the case where a player kills another player
 	case killerID != victimID:
 		match.updatePlayerKill(killerID)
 		match.updatePlayerDeaths(victimID)
 
-	// case player killed itself
+	// Caveat 4: Handle the case where a player kills themselves
 	case killerID == victimID:
 		match.updatePlayerDeaths(victimID)
 	}
 }
 
+// detectMatches scans the log file, detect match boundaries
+// and sends found lines to matchesFound channel
 func (lp *LogParser) detectMatches(logfile io.Reader) error {
 	scanner := bufio.NewScanner(logfile)
 	defer close(lp.matchesFound)
@@ -90,7 +96,7 @@ func (lp *LogParser) detectMatches(logfile io.Reader) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.Contains(line, "InitGame:") {
-			// we are in a game
+			// We are in a game
 			if inMatch {
 				lp.matchesFound <- matchLines
 				matchLines = nil
@@ -99,14 +105,20 @@ func (lp *LogParser) detectMatches(logfile io.Reader) error {
 				inMatch = true
 			}
 		} else {
-			// lines with "---" are ignored
+			// Append lines
 			if !strings.Contains(line, "---") {
+				isKill := strings.Contains(line, "Kill")
+				isPlayerUpdate := strings.Contains(line, "ClientUserinfoChanged")
+
 				inMatch = true
-				matchLines = append(matchLines, line)
+				if isKill || isPlayerUpdate {
+					matchLines = append(matchLines, line)
+				}
 			}
 		}
 	}
 	// Edge case of the last InitGame processed
+	// We send the remaining lines
 	if len(matchLines) != 0 {
 		lp.matchesFound <- matchLines
 	}
@@ -118,6 +130,8 @@ func (lp *LogParser) detectMatches(logfile io.Reader) error {
 	return nil
 }
 
+// parseMatches processes the matches found and sent to matchesFound channel
+// parses them and sends to matchesParsed channel.
 func (lp *LogParser) parseMatches() {
 	defer close(lp.matchesParsed)
 
@@ -163,6 +177,7 @@ func (lp *LogParser) sequentialDetectMatches() error {
 	return nil
 }
 
+// Run initializes and runs the LogParser instance on the provided file.
 func Run(file *os.File) error {
 	parser := NewLogParser(nil, nil)
 
