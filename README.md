@@ -112,6 +112,7 @@ Each line that we are interested appears to have the format of
 - [ ] Self-kills (do not count as kills).
 - [ ] Ensure `total_kills` includes all deaths (player and `<world[Killer_ID=1022]>`).
 - [ ] Accurate handling of self-kills and deaths.
+- [ ] Classify Kills by Death Cause.
 
 ### Group data
 
