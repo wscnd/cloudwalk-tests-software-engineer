@@ -38,10 +38,7 @@ func (lp *LogParser) processMatches() *Matches {
 }
 
 func (lp *LogParser) parseMatchEvents(lines []string) *Match {
-	match := &Match{
-		Players:  make(map[string]*PlayerData),
-		MatchLog: lines,
-	}
+	match := NewMatch(lines)
 
 	for _, line := range lines {
 		switch {
@@ -50,6 +47,7 @@ func (lp *LogParser) parseMatchEvents(lines []string) *Match {
 			eventData := strings.Fields(line)
 
 			match.TotalKills++
+			match.updateKillCauses(eventData)
 
 			killerID := eventData[2]
 			victimID := eventData[3]
@@ -103,7 +101,7 @@ func (lp *LogParser) detectMatches() error {
 		}
 	}
 
-	// Finished parsing the last match
+	// Edge case of the last InitGame processed
 	if len(lines) != 0 {
 		lp.matchesLog = append(lp.matchesLog, lines)
 	}

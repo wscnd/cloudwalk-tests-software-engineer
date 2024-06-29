@@ -8,15 +8,20 @@ import (
 	"strings"
 )
 
-type (
-	Match struct {
-		TotalKills int
-		Players    map[string]*PlayerData
-		MatchLog   []string
-	}
+type Match struct {
+	TotalKills   int
+	Players      map[string]*PlayerData
+	MatchLog     []string
+	KillsByMeans map[meansOfDeath]int
+}
 
-	Matches []*Match
-)
+func NewMatch(loglines []string) *Match {
+	return &Match{
+		Players:      make(map[string]*PlayerData),
+		MatchLog:     loglines,
+		KillsByMeans: make(map[meansOfDeath]int),
+	}
+}
 
 func (m *Match) updatePlayerKill(killerID string) {
 	if p, ok := m.Players[killerID]; !ok {
@@ -53,17 +58,27 @@ func (m *Match) updatePlayerInfo(log string) {
 	}
 }
 
+func (m *Match) updateKillCauses(log []string) {
+	lastPosition := len(log) - 1
+	deathCause := log[lastPosition]
+	cause := meansOfDeath(deathCause)
+
+	m.KillsByMeans[cause]++
+}
+
 func (m *Match) MarshalJSON() ([]byte, error) {
 	type matchDataJSON struct {
-		TotalKills int            `json:"total_kills"`
-		Players    []string       `json:"players"`
-		Kills      map[string]int `json:"kills"`
+		TotalKills   int            `json:"total_kills"`
+		Players      []string       `json:"players"`
+		Kills        map[string]int `json:"kills"`
+		KillsByMeans map[string]int `json:"kills_by_means"`
 	}
 
 	data := &matchDataJSON{
-		TotalKills: m.TotalKills,
-		Players:    make([]string, 0, len(m.Players)),
-		Kills:      make(map[string]int, m.TotalKills),
+		TotalKills:   m.TotalKills,
+		Players:      make([]string, 0, len(m.Players)),
+		Kills:        make(map[string]int, m.TotalKills),
+		KillsByMeans: make(map[string]int, len(m.KillsByMeans)),
 	}
 
 	for _, player := range m.Players {
@@ -71,8 +86,14 @@ func (m *Match) MarshalJSON() ([]byte, error) {
 		data.Kills[player.Name] = player.Kills
 	}
 
+	for mod, count := range m.KillsByMeans {
+		data.KillsByMeans[string(mod)] = count
+	}
+
 	return json.Marshal(data)
 }
+
+type Matches []*Match
 
 func (ms *Matches) toJSON() error {
 	output := make(map[string]*Match)
