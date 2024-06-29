@@ -60,7 +60,51 @@ func (lp *LogParser) parseMatchEvents(lines []string) *MatchData {
 		switch {
 		// Process Kill Event
 		case strings.Contains(line, "Kill"):
+			eventData := strings.Fields(line)
+
 			match.TotalKills++
+
+			killerID := eventData[2]
+			victimID := eventData[3]
+
+			switch {
+			// case world killed
+			case killerID == "1022":
+				if p, ok := match.Players[victimID]; !ok {
+					match.Players[victimID] = &PlayerData{
+						Deaths: 1,
+					}
+				} else {
+					p.Deaths++
+				}
+
+			// case player killed another player
+			case killerID != victimID:
+				if p, ok := match.Players[killerID]; !ok {
+					match.Players[killerID] = &PlayerData{
+						Kills: 1,
+					}
+				} else {
+					p.Kills++
+				}
+				if p, ok := match.Players[victimID]; !ok {
+					match.Players[victimID] = &PlayerData{
+						Deaths: 1,
+					}
+				} else {
+					p.Deaths++
+				}
+
+			// case player killed itself
+			case killerID == victimID:
+				if p, ok := match.Players[victimID]; !ok {
+					match.Players[victimID] = &PlayerData{
+						Deaths: 1,
+					}
+				} else {
+					p.Deaths++
+				}
+			}
 
 		// Parse ClientUserinfoChanged Event
 		case strings.Contains(line, "ClientUserinfoChanged"):
