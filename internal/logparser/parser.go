@@ -140,43 +140,6 @@ func (lp *LogParser) parseMatches() {
 	}
 }
 
-func (lp *LogParser) sequentialDetectMatches() error {
-	scanner := bufio.NewScanner(lp.logfile)
-
-	var lines []string
-	var inMatch bool
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.Contains(line, "InitGame:") {
-			// we are in a game
-			if inMatch {
-				lp.matchesLog = append(lp.matchesLog, lines)
-				lines = nil
-				inMatch = false
-			} else {
-				inMatch = true
-			}
-		} else {
-			// lines with "---" are ignored
-			if !strings.Contains(line, "---") {
-				inMatch = true
-				lines = append(lines, line)
-			}
-		}
-	}
-
-	// Edge case of the last InitGame processed
-	if len(lines) != 0 {
-		lp.matchesLog = append(lp.matchesLog, lines)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Run initializes and runs the LogParser instance on the provided file.
 func Run(file *os.File) error {
 	parser := NewLogParser(nil, nil)
