@@ -9,32 +9,92 @@ import (
 )
 
 type LogParser struct {
-	logfile io.Reader
-	matches *Match
+	logfile    io.Reader
+	matchesLog [][]string
 }
 
-func NewLogParser(logFile io.Reader, match *Match) *LogParser {
+func NewLogParser(logFile io.Reader, log [][]string) *LogParser {
 	return &LogParser{
-		logfile: logFile,
-		matches: match,
+		logfile:    logFile,
+		matchesLog: log,
 	}
 }
 
-type Match struct {
-	Matches [][]string
+type (
+	PlayerData struct {
+		Name   string `json:"name"`
+		Kills  int    `json:"kills"`
+		Deaths int    `json:"deaths"`
+	}
+
+	MatchData struct {
+		TotalKills int
+		Players    map[string]*PlayerData
+		MatchLog   []string
+	}
+)
+
+func (lp *LogParser) processMatches() {
+	var matchData []*MatchData
+	for _, lines := range lp.matchesLog {
+		matchData = append(matchData, lp.parseMatchEvents(lines))
+	}
+
+	for matchID, matchData := range matchData {
+		fmt.Printf("Match ID: %d\n", matchID)
+		fmt.Printf("Total Kills: %d\n", matchData.TotalKills)
+		fmt.Println("Players:")
+		for _, player := range matchData.Players {
+			fmt.Printf("\tName: %s, Kills: %d, Deaths: %d\n", player.Name, player.Kills, player.Deaths)
+		}
+	}
+}
+
+func (lp *LogParser) parseMatchEvents(lines []string) *MatchData {
+	match := &MatchData{
+		Players:  make(map[string]*PlayerData),
+		MatchLog: lines,
+	}
+
+	for _, line := range lines {
+		switch {
+		// Process Kill Event
+		case strings.Contains(line, "Kill"):
+			match.TotalKills++
+
+		// Parse ClientUserinfoChanged Event
+		case strings.Contains(line, "ClientUserinfoChanged"):
+			logs := strings.Split(line, "ClientUserinfoChanged: ")
+
+			eventData := logs[1]
+			playerID := strings.Split(eventData, " ")[0]
+			startIndex := strings.Index(eventData, "n\\") + len("n\\")
+			endIndex := strings.Index(eventData, "\\t")
+			playerNickName := eventData[startIndex:endIndex]
+
+			if _, ok := match.Players[playerID]; !ok {
+				match.Players[playerID] = &PlayerData{
+					Name: playerNickName,
+				}
+			} else {
+				match.Players[playerID].Name = playerNickName
+			}
+		}
+	}
+	return match
 }
 
 func (lp *LogParser) detectMatches() error {
 	scanner := bufio.NewScanner(lp.logfile)
 
 	var lines []string
-	var inMatch bool = false
+	var inMatch bool
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.Contains(line, "InitGame:") {
 			// we are in a game
 			if inMatch {
-				lp.matches.Matches = append(lp.matches.Matches, lines)
+				lp.matchesLog = append(lp.matchesLog, lines)
 				lines = nil
 				inMatch = false
 			} else {
@@ -49,7 +109,7 @@ func (lp *LogParser) detectMatches() error {
 		}
 	}
 	if len(lines) != 0 {
-		lp.matches.Matches = append(lp.matches.Matches, lines)
+		lp.matchesLog = append(lp.matchesLog, lines)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -60,12 +120,8 @@ func (lp *LogParser) detectMatches() error {
 }
 
 func Run(file *os.File) {
-	m := &Match{
-		Matches: make([][]string, 0, 21),
-	}
-
-	parser := NewLogParser(file, m)
-	matchesDetected := parser.detectMatches()
-
-	fmt.Printf("%+v matches found!\n", matchesDetected)
+	log := make([][]string, 0, 21)
+	parser := NewLogParser(file, log)
+	parser.detectMatches()
+	parser.processMatches()
 }
