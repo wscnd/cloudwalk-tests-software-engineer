@@ -2,7 +2,6 @@ package logparser
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -26,14 +25,6 @@ func (lp *LogParser) processMatches() *Matches {
 		matchData = append(matchData, lp.parseMatchEvents(lines))
 	}
 
-	for matchID, matchData := range matchData {
-		fmt.Printf("Match ID: %d\n", matchID)
-		fmt.Printf("Total Kills: %d\n", matchData.TotalKills)
-		fmt.Println("Players:")
-		for _, player := range matchData.Players {
-			fmt.Printf("\tName: %s, Kills: %d, Deaths: %d\n", player.Name, player.Kills, player.Deaths)
-		}
-	}
 	return &matchData
 }
 

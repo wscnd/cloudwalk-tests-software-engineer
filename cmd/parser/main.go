@@ -35,8 +35,6 @@ func run() error {
 		return fmt.Errorf("%w: %s", ErrOpeningFile, err)
 	}
 	defer file.Close()
-	stats, _ := file.Stat()
-	fmt.Printf("Successfully opened and processed file: %s\nSize: %d bytes\n\n", filePath, stats.Size())
 
 	// -------------------------------------------------------------------------
 	// Parsing file
