@@ -37,50 +37,56 @@ Each line that we are interested appears to have the format of
 ### 2. Identify a Match boundary
 
 #### 2.1 Characteristics
+
 - Each new match starts with `InitGame` events.
 - Game data is in between two `InitGame`.
 - **Caveat 1**: Sometimes games are not ended with `ShutdownGame` events.
 
 #### 2.2 Testing
-  - I manually detected 21 games, maybe assert first that the processing detected these games.
-  - Assert that the 21(?) matches start and end have the correct boundaries with the timestamp.
 
+- I manually detected 21 games, maybe assert first that the processing detected these games.
+- Assert that the 21(?) matches start and end have the correct boundaries with the timestamp.
 
 ### 3. Gather Data from Matches by Events
 
 #### 3.1. ClientUserinfoChanged
-* Means that a player changed something, sometimes they change their name, which is probably the most relevant change.
-* Structure:
+
+- Means that a player changed something, sometimes they change their name, which is probably the most relevant change.
+- Structure:
 
 ```
 <timestamp> ClientUserinfoChanged: <User_ID> n\<User_Name>\t….some\other\things
 ```
-* Example:
+
+- Example:
 
 ```
 21:15 ClientUserinfoChanged: 2 n\Isgalamido\t\0\model\uriel/zael\hmodel\uriel/zael\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
 ```
 
-* We are interested in whatever is between `n\` and `\t` which is the player nickname associated with the change.
-* **Caveat 2**: Sometimes a player change its name, identify by the `<User_ID>` and persist its previous match data.
-* **Caveat 3**: A player can also have a nickname that is composed of more than one word, ex: *"My very nice nickname"*.
+- We are interested in whatever is between `n\` and `\t` which is the player nickname associated with the change.
+- **Caveat 2**: Sometimes a player change its name, identify by the `<User_ID>` and persist its previous match data.
+- **Caveat 3**: A player can also have a nickname that is composed of more than one word, ex: _"My very nice nickname"_.
 
 #### 3.2. Kill
-* Means that there was a kill.
-* Structure:
+
+- Means that there was a kill.
+- Structure:
 
 ```
 <timestamp> Kill: <Killer_ID> <Victim_ID> <Death_Cause_ID>: <Killer as string> killed <Victim as string> by <Death_Cause as string>
 ```
-* Example:
+
+- Example:
+
 ```
 21:42 Kill: 1022 2 22: <world> killed Isgalamido by MOD_TRIGGER_HURT
 ```
-  * When `<world[Killer_ID=1022]>` kills a player, that player loses -1 kill score.
-  * Since `<world[Killer_ID=1022]>` is not a player, it should not appear in the list of players or in the dictionary of kills.,
-  * The counter `total_kills` includes player and world deaths.
-  * **Caveat 4**: Sometimes a player kills itself `(Killer_ID ==Victim_ID)`, the Kill shouldn't count and only the Death. Since this is a team game, some parsers can process the Death differently depending on how it handles the individual player KDA metric or team statistics.
 
+- When `<world[Killer_ID=1022]>` kills a player, that player loses -1 kill score.
+- Since `<world[Killer_ID=1022]>` is not a player, it should not appear in the list of players or in the dictionary of kills.,
+- The counter `total_kills` includes player and world deaths.
+- **Caveat 4**: Sometimes a player kills itself `(Killer_ID ==Victim_ID)`, the Kill shouldn't count and only the Death. Since this is a team game, some parsers can process the Death differently depending on how it handles the individual player KDA metric or team statistics.
 
 ## Tasks
 
@@ -109,10 +115,8 @@ Each line that we are interested appears to have the format of
 
 - [ ] Group parsed data by match and output in the specified JSON structure.
 
-
-
 ---
 
 ### Project Structure
-... TODO
 
+... TODO
