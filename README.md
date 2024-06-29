@@ -116,7 +116,7 @@ Each line that we are interested appears to have the format of
 
 ### Group data
 
-- [ ] Group parsed data by match and output in the specified JSON structure.
+- [x] Group parsed data by match and output in the specified JSON structure.
 
 ---
 
