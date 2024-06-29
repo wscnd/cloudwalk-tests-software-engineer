@@ -92,10 +92,10 @@ Each line that we are interested appears to have the format of
 
 ### Identify a Match boundary
 
-- [ ] Parse the log file to identify match boundaries using `InitGame` events.
-- [ ] Games not ending with `ShutdownGame` events.
+- [x] Parse the log file to identify match boundaries using `InitGame` events.
+- [x] Games not ending with `ShutdownGame` events.
 - [x] Test 21 games.
-- [ ] Test 21 games start and end based on timestamp.
+- [x] Test 21 games start and end based on timestamp.
 
 ### Gather Data from Matches by Events
 
