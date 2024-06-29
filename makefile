@@ -1,0 +1,6 @@
+run:
+	go run cmd/parser/main.go logs/qgames.log
+
+lint:
+	CGO_ENABLED=0 go vet ./...
+	staticcheck -checks=all ./...
