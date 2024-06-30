@@ -163,3 +163,4 @@ Each line that we are interested appears to have the format of
 - [x] Grouped information for each match
 - [ ] A player ranking
 - [ ] Report of deaths grouped by death cause for each match
+- [ ] Print to stdout

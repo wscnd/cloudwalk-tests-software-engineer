@@ -19,7 +19,16 @@ dev-run-build:
 	./main logs/qgames.log
 
 view-output:
-	cat match_data.json | jq .
+	@if command -v cat >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then \
+		cat match_data.json | jq .; \
+	else \
+		if ! command -v cat >/dev/null 2>&1; then \
+			echo "cat command not found. Install cat."; \
+		fi; \
+		if ! command -v jq >/dev/null 2>&1; then \
+			echo "jq command not found. Install jq to pretty-print JSON."; \
+		fi; \
+	fi
 
 # ==============================================================================
 # Linting and tests
@@ -86,4 +95,4 @@ docker-copy:
 docker-rm:
 	docker rm $(CONTAINER_NAME)
 
-docker-all: docker-build docker-run docker-copy docker-rm
+docker-all: docker-build docker-run docker-copy docker-rm view-output
