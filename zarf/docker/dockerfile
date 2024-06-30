@@ -1,0 +1,29 @@
+# Start from a base Go image
+FROM golang:1.22.4 as build_parser
+ENV CGO_ENABLED 0
+ARG BUILD_REF
+
+COPY . /parser
+
+WORKDIR /parser/cmd/parser
+RUN	go build -ldflags "-X main.build=${BUILD_REF}" -o parser main.go
+
+FROM alpine:3.19
+WORKDIR /parser
+
+ARG BUILD_DATE
+ARG BUILD_REF
+RUN addgroup -g 1000 -S parser && \
+  adduser -u 1000 -h /parser -G parser -S parser
+COPY --from=build_parser --chown=parser:parser /parser/cmd/parser/parser .
+COPY --from=build_parser --chown=parser:parser /parser/logs /parser/logs
+
+USER parser
+CMD ["./parser", "logs/qgames.log"]
+
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+  org.opencontainers.image.title="parser" \
+  org.opencontainers.image.author="wscnd <72019998+wscnd@users.noreply.github.com>" \
+  org.opencontainers.image.vendor="wscnd" \
+  org.opencontainers.image.source="https://github.com/wscnd/cloudwalk-tests-software-engineer" \
+  org.opencontainers.image.revision="${BUILD_REF}"
