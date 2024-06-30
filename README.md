@@ -41,7 +41,7 @@ After running the application successfully, `match_data.json` will be copied fro
 
 ## Observations
 
-**Input**: Quake Game log file [qgames.log](/qgames.log), each line represents a log entry containing matches information.
+**Input**: Quake Game log file [qgames.log](/logs/qgames.log), each line represents a log entry containing matches information.
 
 **Output**: Parsed log grouped by match with json structure as follows:
 
@@ -161,6 +161,6 @@ Each line that we are interested appears to have the format of
 ### Output
 
 - [x] Grouped information for each match
-- [ ] A player ranking
-- [ ] Report of deaths grouped by death cause for each match
-- [ ] Print to stdout
+- [x] A player ranking
+- [x] Report of deaths grouped by death cause for each match
+- [x] Print to stdout
