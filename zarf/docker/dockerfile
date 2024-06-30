@@ -25,5 +25,5 @@ LABEL org.opencontainers.image.created="${BUILD_DATE}" \
   org.opencontainers.image.title="parser" \
   org.opencontainers.image.author="wscnd <72019998+wscnd@users.noreply.github.com>" \
   org.opencontainers.image.vendor="wscnd" \
-  org.opencontainers.image.source="https://https://github.com/wscnd/cloudwalk-tests-software-engineer" \
+  org.opencontainers.image.source="https://github.com/wscnd/cloudwalk-tests-software-engineer" \
   org.opencontainers.image.revision="${BUILD_REF}"
