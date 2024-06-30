@@ -13,30 +13,30 @@ Below are some instructions andd observations about the task to help maintain wh
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/wscnd/cloudwalk-tests-software-engineer
+   git clone git@github.com:wscnd/cloudwalk-tests-software-engineer.git
    cd cloudwalk-tests-software-engineer
    ```
-2. Install necessary dependencies (optional for running tests or linting scripts):
+2. Run the application in Docker:
 
    ```bash
-    make dev-init
+    make docker-all
    ```
+   This command:
+   - Creates a image
+   - Runs a container with it which runs the app
+   - Copies the json output to a local file
+   - Deletes the container.
 
-3. Running the Application:
+After running the application successfully, `match_data.json` will be copied from the docker container.
 
-   ```bash
-    make dev-run
-   ```
-
-After running the application successfully, `match_data.json` will be generated in the project directory.
-
-4. Delete generated files:
+3. (Optional) Delete generated files:
 
    ```bash
     make clean
    ```
 
 ---
+
 ---
 
 ## Observations
