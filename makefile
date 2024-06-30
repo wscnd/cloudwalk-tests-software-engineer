@@ -44,3 +44,11 @@ run-tool-trace:
 	go tool trace trace.out
 
 trace: run-trace run-tool-trace
+
+# ==============================================================================
+# Cleanup
+
+.PHONY: clean
+
+clean:
+	rm -f main match_data.json
