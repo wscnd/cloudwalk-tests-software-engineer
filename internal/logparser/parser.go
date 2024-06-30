@@ -20,14 +20,16 @@ type LogParser struct {
 	matchesLog    [][]string    // Accumulated log lines grouped by matches
 	matchesFound  chan []string // Channel for correctly identified match lines
 	matchesParsed chan *Match   // Channel for parsed matches.
+	wg            *sync.WaitGroup
 }
 
 // NewLogParser creates a new LogParser instance.
 // The arguments logFile and log are only used for testing.
 func NewLogParser(logFile io.Reader, log [][]string) *LogParser {
 	lp := &LogParser{
-		matchesFound:  make(chan []string),
-		matchesParsed: make(chan *Match),
+		matchesFound:  make(chan []string, 5),
+		matchesParsed: make(chan *Match, 5),
+		wg:            &sync.WaitGroup{},
 	}
 
 	if logFile != nil {
@@ -87,9 +89,12 @@ func (*LogParser) parseKills(line string, match *Match) {
 
 // detectMatches scans the log file, detect match boundaries
 // and sends found lines to matchesFound channel
-func (lp *LogParser) detectMatches(logfile io.Reader) error {
-	scanner := bufio.NewScanner(logfile)
+func (lp *LogParser) detectMatches(logfile io.Reader, errChan chan<- error) {
+	defer lp.wg.Done()
 	defer close(lp.matchesFound)
+	defer close(errChan)
+
+	scanner := bufio.NewScanner(logfile)
 
 	var matchLines []string
 	var inMatch bool
@@ -110,6 +115,7 @@ func (lp *LogParser) detectMatches(logfile io.Reader) error {
 				isKill := strings.Contains(line, "Kill")
 				isPlayerUpdate := strings.Contains(line, "ClientUserinfoChanged")
 
+				// errChan <- fmt.Errorf("%w: if we break here we should halt everything", ErrScanningLogFile)
 				inMatch = true
 				if isKill || isPlayerUpdate {
 					matchLines = append(matchLines, line)
@@ -124,15 +130,14 @@ func (lp *LogParser) detectMatches(logfile io.Reader) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("%w: %s", ErrScanningLogFile, err)
+		errChan <- fmt.Errorf("%w: %s", ErrScanningLogFile, err)
 	}
-
-	return nil
 }
 
 // parseMatches processes the matches found and sent to matchesFound channel
 // parses them and sends to matchesParsed channel.
 func (lp *LogParser) parseMatches() {
+	defer lp.wg.Done()
 	defer close(lp.matchesParsed)
 
 	for lines := range lp.matchesFound {
@@ -145,33 +150,32 @@ func Run(file *os.File) error {
 	parser := NewLogParser(nil, nil)
 
 	errChan := make(chan error, 1)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := parser.detectMatches(file); err != nil {
-			errChan <- fmt.Errorf("%w: %s", ErrDetectingMatches, err)
+
+	parser.wg.Add(2)
+	go parser.detectMatches(file, errChan)
+	go parser.parseMatches()
+
+	matchData := make(Matches)
+	for {
+		select {
+		case err, ok := <-errChan:
+			if ok && err != nil {
+				return err
+			}
+			// The errChan is only being used in detectMatches, once we're done
+			// detecting, we close it and this case is disabled.
+			errChan = nil
+		case match, moreData := <-parser.matchesParsed:
+			if !moreData {
+				parser.matchesParsed = nil
+			} else {
+				matchData[fmt.Sprintf("game-%d", len(matchData)+1)] = match
+			}
 		}
-	}()
 
-	go func() {
-		defer close(errChan)
-		wg.Wait()
-	}()
-
-	go func() {
-		parser.parseMatches()
-	}()
-
-	select {
-	case err := <-errChan:
-		return err
-	default:
-	}
-
-	var matchData Matches = make(map[string]*Match)
-	for match := range parser.matchesParsed {
-		matchData[fmt.Sprintf("game-%d", len(matchData)+1)] = match
+		if errChan == nil && parser.matchesParsed == nil {
+			break
+		}
 	}
 
 	if err := matchData.toJSON(); err != nil {

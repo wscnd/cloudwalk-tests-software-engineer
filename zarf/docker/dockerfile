@@ -1,13 +1,17 @@
-# Start from a base Go image
+# Build the Go Binary.
 FROM golang:1.22.4 as build_parser
 ENV CGO_ENABLED 0
 ARG BUILD_REF
 
+# Copy the source code into the container.
 COPY . /parser
 
+# Build the service binary. We are doing this last since this will be different
+# every time we run through this process.
 WORKDIR /parser/cmd/parser
 RUN	go build -ldflags "-X main.build=${BUILD_REF}" -o parser main.go
 
+# Run the Go Binary in Alpine.
 FROM alpine:3.19
 WORKDIR /parser
 
@@ -16,7 +20,7 @@ ARG BUILD_REF
 RUN addgroup -g 1000 -S parser && \
   adduser -u 1000 -h /parser -G parser -S parser
 COPY --from=build_parser --chown=parser:parser /parser/cmd/parser/parser .
-COPY --from=build_parser --chown=parser:parser /parser/logs /parser/logs
+COPY --from=build_parser --chown=parser:parser /parser/logs/qgames.log /parser/logs/qgames.log
 
 USER parser
 CMD ["./parser", "logs/qgames.log"]

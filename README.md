@@ -156,6 +156,10 @@ Each line that we are interested appears to have the format of
 
 ### Optimization
 
-- [?] Reduce processing time using concurrency
+- [x] Reduce processing time using concurrency
 
-  Comment: Didn't notice much difference with small files.
+### Output
+
+- [x] Grouped information for each match
+- [ ] A player ranking
+- [ ] Report of deaths grouped by death cause for each match
