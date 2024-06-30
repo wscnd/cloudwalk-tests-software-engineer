@@ -19,7 +19,7 @@ Below are some instructions andd observations about the task to help maintain wh
 2. Install necessary dependencies (optional for running tests or linting scripts):
 
    ```bash
-    make dev-gotooling
+    make dev-init
    ```
 
 3. Running the Application:
@@ -30,6 +30,11 @@ Below are some instructions andd observations about the task to help maintain wh
 
 After running the application successfully, `match_data.json` will be generated in the project directory.
 
+4. Delete generated files:
+
+   ```bash
+    make clean
+   ```
 
 ---
 ---
