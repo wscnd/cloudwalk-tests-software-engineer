@@ -18,6 +18,9 @@ dev-up:
 dev-run-build:
 	./main logs/qgames.log
 
+view-output:
+	cat match_data.json | jq .
+
 # ==============================================================================
 # Linting and tests
 
@@ -40,10 +43,10 @@ build:
 run-trace:
 	./main logs/qgames.log > trace.out
 
-run-tool-trace:
+tool-trace:
 	go tool trace trace.out
 
-trace: run-trace run-tool-trace
+trace: run-trace tool-trace
 
 # ==============================================================================
 # Cleanup
@@ -51,7 +54,7 @@ trace: run-trace run-tool-trace
 .PHONY: clean
 
 clean:
-	rm -f main match_data.json
+	rm -f main match_data.json trace.out
 
 # ==============================================================================
 # Container
