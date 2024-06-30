@@ -1,9 +1,40 @@
 # CloudWalk Technical Assessment
 
 The main details about the task are in the file [instructions.md](/instructions.md).
-Below are some characteristics and observations about the task to help maintain what should be done and which things should be kept in mind. Interesting observations that were found from the log are highlighted with **Caveat**.
+Below are some instructions andd observations about the task to help maintain what should be done and which things should be kept in mind. Interesting observations that were found from the log are highlighted with **Caveat**.
 
-## Input - Output
+## Instructions
+
+### Prerequisites
+
+- Go installed on your machine.
+
+### Setup
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/wscnd/cloudwalk-tests-software-engineer
+   cd cloudwalk-tests-software-engineer
+   ```
+2. Install necessary dependencies (optional for running tests or linting scripts):
+
+   ```bash
+    make dev-gotooling
+   ```
+
+3. Running the Application:
+
+   ```bash
+    make dev-run
+   ```
+
+After running the application successfully, `match_data.json` will be generated in the project directory.
+
+
+---
+---
+
+## Observations
 
 **Input**: Quake Game log file [qgames.log](/qgames.log), each line represents a log entry containing matches information.
 
@@ -27,29 +58,29 @@ Below are some characteristics and observations about the task to help maintain 
 }
 ```
 
-## Approach
+### Approach
 
-### 1. Identify how the lines are formatted
+#### 1. Identify how the lines are formatted
 
 Each line that we are interested appears to have the format of
 `<timestamp> <EventType>: <Event Data…>`.
 
-### 2. Identify a Match boundary
+#### 2. Identify a Match boundary
 
-#### 2.1 Characteristics
+##### 2.1 Characteristics
 
 - Each new match starts with `InitGame` events.
 - Game data is in between two `InitGame`.
 - **Caveat 1**: Sometimes games are not ended with `ShutdownGame` events.
 
-#### 2.2 Testing
+##### 2.2 Testing
 
 - I manually detected 21 games, maybe assert first that the processing detected these games.
 - Assert that the 21(?) matches start and end have the correct boundaries with the timestamp.
 
-### 3. Gather Data from Matches by Events
+#### 3. Gather Data from Matches by Events
 
-#### 3.1. ClientUserinfoChanged
+##### 3.1. ClientUserinfoChanged
 
 - Means that a player changed something, sometimes they change their name, which is probably the most relevant change.
 - Structure:
@@ -68,7 +99,7 @@ Each line that we are interested appears to have the format of
 - **Caveat 2**: Sometimes a player change its name, identify by the `<User_ID>` and persist its previous match data.
 - **Caveat 3**: A player can also have a nickname that is composed of more than one word, ex: _"My very nice nickname"_.
 
-#### 3.2. Kill
+##### 3.2. Kill
 
 - Means that there was a kill.
 - Structure:
@@ -112,17 +143,14 @@ Each line that we are interested appears to have the format of
 - [x] Self-kills (do not count as kills).
 - [x] Ensure `total_kills` includes all deaths (player and `<world[Killer_ID=1022]>`).
 - [x] Accurate handling of self-kills and deaths.
-- [ ] Classify Kills by Death Cause.
+- [x] Classify Kills by Death Cause.
 
 ### Group data
 
 - [x] Group parsed data by match and output in the specified JSON structure.
 
-
 ### Optimization
-- [ ] Reduce processing time using concurrency
----
 
-### Project Structure
+- [?] Reduce processing time using concurrency
 
-... TODO
+  Comment: Didn't notice much difference with small files.
