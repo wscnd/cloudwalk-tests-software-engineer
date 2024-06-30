@@ -2,10 +2,15 @@ package logparser
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
+)
+
+var (
+	ErrParsingJSON     = errors.New("error generating json output: %w")
+	ErrWritingJSONFile = errors.New("error writing json file: %w")
 )
 
 type Match struct {
@@ -93,23 +98,22 @@ func (m *Match) MarshalJSON() ([]byte, error) {
 	return json.Marshal(data)
 }
 
-type Matches []*Match
+type Matches map[string]*Match
 
 func (ms *Matches) toJSON() error {
 	output := make(map[string]*Match)
 
-	for id, matchData := range *ms {
-		matchID := "game-" + strconv.Itoa(id+1)
+	for matchID, matchData := range *ms {
 		output[matchID] = matchData
 	}
 	jsonOutput, err := json.MarshalIndent(output, "", "  ")
 	if err != nil {
-		return fmt.Errorf("error generating json output: %w", err)
+		return fmt.Errorf("%w: %s", ErrParsingJSON, err)
 	}
 
 	err = os.WriteFile("match_data.json", jsonOutput, 0o644)
 	if err != nil {
-		return fmt.Errorf("error writing json file: %w", err)
+		return fmt.Errorf("%w: %s", ErrWritingJSONFile, err)
 	}
 
 	return nil
