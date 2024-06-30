@@ -1,8 +1,22 @@
 # ==============================================================================
+# Install dependencies
+
+dev-gotooling:
+	go install github.com/stretchr/testify
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+
+# ==============================================================================
 # Running
+
+dev-init: dev-gotooling
+
+dev-run: build dev-run-build
 
 dev-up:
 	go run cmd/parser/main.go logs/qgames.log
+
+dev-run-build:
+	./main logs/qgames.log
 
 # ==============================================================================
 # Linting and tests
