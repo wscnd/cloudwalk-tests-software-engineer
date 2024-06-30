@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -76,13 +77,13 @@ func (m *Match) MarshalJSON() ([]byte, error) {
 		TotalKills   int            `json:"total_kills"`
 		Players      []string       `json:"players"`
 		Kills        map[string]int `json:"kills"`
-		KillsByMeans map[string]int `json:"kills_by_means"`
+		KillsByMeans map[string]int `json:"kills_by_means,omitempty"`
 	}
 
-	data := &matchDataJSON{
+	data := matchDataJSON{
 		TotalKills:   m.TotalKills,
 		Players:      make([]string, 0, len(m.Players)),
-		Kills:        make(map[string]int, m.TotalKills),
+		Kills:        make(map[string]int, len(m.Players)),
 		KillsByMeans: make(map[string]int, len(m.KillsByMeans)),
 	}
 
@@ -90,6 +91,10 @@ func (m *Match) MarshalJSON() ([]byte, error) {
 		data.Players = append(data.Players, player.Name)
 		data.Kills[player.Name] = player.Kills
 	}
+
+	sort.Slice(data.Players, func(i, j int) bool {
+		return data.Kills[data.Players[i]] > data.Kills[data.Players[j]]
+	})
 
 	for mod, count := range m.KillsByMeans {
 		data.KillsByMeans[string(mod)] = count

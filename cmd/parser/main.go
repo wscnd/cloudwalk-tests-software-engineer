@@ -14,6 +14,7 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("Parsing completed. JSON file generated.")
+	os.Exit(0)
 }
 
 var (
