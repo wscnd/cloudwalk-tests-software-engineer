@@ -164,3 +164,13 @@ Each line that we are interested appears to have the format of
 - [x] A player ranking
 - [x] Report of deaths grouped by death cause for each match
 - [x] Print to stdout
+
+---
+
+---
+
+### Improvements
+- [ ] Review and refine entity models (e.g., Match, Player, Event)
+- [ ] Implement business logic within entities
+- [ ] Define clear terminology for entity operations
+
