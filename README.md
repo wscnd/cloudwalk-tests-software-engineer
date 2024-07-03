@@ -1,5 +1,15 @@
 # CloudWalk Technical Assessment
 
+# Summary
+
+- [Instructions](#instructions)
+- [Observations](#observations)
+- [Tasks](#tasks)
+  - [Core Functionality](#core-funcionality)
+  - [Optional](#optional)
+
+---
+
 The main details about the task are in the file [instructions.md](/instructions.md).
 Below are some instructions andd observations about the task to help maintain what should be done and which things should be kept in mind. Interesting observations that were found from the log are highlighted with **Caveat**.
 
@@ -21,7 +31,9 @@ Below are some instructions andd observations about the task to help maintain wh
    ```bash
     make docker-all
    ```
+
    This command:
+
    - Creates a image
    - Runs a container with it which runs the app
    - Copies the json output to a local file
@@ -126,22 +138,24 @@ Each line that we are interested appears to have the format of
 
 ## Tasks
 
-### Identify a Match boundary
+### Core Funcionality
+
+#### 1. Identify a Match boundary
 
 - [x] Parse the log file to identify match boundaries using `InitGame` events.
 - [x] Games not ending with `ShutdownGame` events.
 - [x] Test 21 games.
 - [x] Test 21 games start and end based on timestamp.
 
-### Gather Data from Matches by Events
+#### 2. Gather Data from Matches by Events
 
-#### ClientUserinfoChanged events
+##### ClientUserinfoChanged events
 
 - [x] Track `ClientUserinfoChanged` events to maintain accurate player names.
 - [x] Player name changes during a match.
 - [x] Multi-word player nicknames
 
-#### Kill events
+##### Kill events
 
 - [x] Player kills.
 - [x] Deaths by `<world[Killer_ID=1022]>`.
@@ -150,27 +164,25 @@ Each line that we are interested appears to have the format of
 - [x] Accurate handling of self-kills and deaths.
 - [x] Classify Kills by Death Cause.
 
-### Group data
+#### 3. Group data
 
 - [x] Group parsed data by match and output in the specified JSON structure.
 
-### Optimization
-
-- [x] Reduce processing time using concurrency
-
-### Output
+#### 4. Output
 
 - [x] Grouped information for each match
 - [x] A player ranking
 - [x] Report of deaths grouped by death cause for each match
 - [x] Print to stdout
 
----
+### Optional
 
----
+#### 1. Processing Optimization
 
-### Improvements
+- [x] Reduce processing time using concurrency
+
+#### 2. Data Modeling
+
 - [ ] Review and refine entity models (e.g., Match, Player, Event)
 - [ ] Implement business logic within entities
 - [ ] Define clear terminology for entity operations
-
