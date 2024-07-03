@@ -54,37 +54,21 @@ func (lp *LogParser) parseMatchEvents(loglines []string) *Match {
 
 		// Handle ClientUserinfoChanged events
 		case strings.Contains(line, "ClientUserinfoChanged"):
-			logs := strings.Split(line, "ClientUserinfoChanged: ")
-			match.updatePlayerInfo(logs[1])
+			lp.parseClientUserInfoChanged(line, match)
 		}
 	}
 	return match
 }
 
+func (*LogParser) parseClientUserInfoChanged(line string, match *Match) {
+	eventData := strings.Split(line, "ClientUserinfoChanged: ")
+	match.OnPlayerInfoChange(eventData[1])
+}
+
 // parseKills updates the match object with kill event data.
 func (*LogParser) parseKills(line string, match *Match) {
 	eventData := strings.Fields(line)
-
-	match.TotalKills++
-	match.updateKillCauses(eventData)
-
-	killerID := eventData[2]
-	victimID := eventData[3]
-
-	switch {
-	// Handle the case where world is the killer
-	case killerID == "1022":
-		match.updatePlayerDeaths(victimID)
-
-	// Handle the case where a player kills another player
-	case killerID != victimID:
-		match.updatePlayerKill(killerID)
-		match.updatePlayerDeaths(victimID)
-
-	// Caveat 4: Handle the case where a player kills themselves
-	case killerID == victimID:
-		match.updatePlayerDeaths(victimID)
-	}
+	match.OnKill(eventData)
 }
 
 // detectMatches scans the log file, detect match boundaries
