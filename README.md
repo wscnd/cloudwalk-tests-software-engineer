@@ -1,6 +1,28 @@
 # CloudWalk Technical Assessment
 
-# Summary
+## Description
+
+I took this as a take-home assignment for the company. They gave me approximately 85 hours to complete it but because of lack of negotiating with the recruiter, the countdown started on a Thursday, and I could only start working on it on Saturday, giving me less than 32 hours to work on it.
+
+Take-home assignments are, at minimum, good practice because of the time pressure and potential feedback that can be received to improve your problem-solving skills.
+
+Always remember: Good engineers can create bad code and can also make poor decisions. Feedback is about the code and not about you. Appreciate feedback on things that could be improved.
+
+If you're applying for CloudWalk, they are not transparent about what will be evaluated in the technical assessment, which leaves a lot of room for subjectivity and uncertainty about what is considered core functionality and what is optional. However, there are minimum things that you should be able to demonstrate with your code and I didn't consider all of them when taking it. I certainly focused more time on documenting than I should, keep in mind that if you advance, you will have time to explain to them what it is that you did, so use my [observations](#observations) as a guide and feel free to correct & expand on them. Here are the four main areas to focus:
+
+- **The domain modeling**: How well you represent the problem domain within your code, identifying key entities, their attributes, relationships, and encapsulating them in a way that accurately reflects the problem you are solving. It shows that you care about intuitive codebase where the business logic is easy to understand and maintain. The feedback I received was mostly focused on this one.
+
+- **Integrity**: Ensuring it produces the correct output. It's a must and you should make sure to reliably produce the expected results for the inputs, tests can help you with asserting that. Demonstrate that the logic is sound and that you identified and handled edge cases and potential errors.
+
+- **Readability**: It’s production code, other people will read it; don’t expect that they will run it. Your code should be easy to read and understand: following coding conventions, using meaningful variable and function names, and including comments where necessary to explain complex logic.
+
+- **Simplicity**: Not using obscure techniques when simple approaches will suffice. It's possible to be as simple as possible while still meeting the requirements. Avoid over-engineering or using overly complex patterns that do not provide significant benefits.
+
+I know there's a lot in these 4 bullet points and you won't find all of these in this codebase, I could also include Software Architecture and Testability but they can be derived from the other ones. I didn't advance in the hiring stage but my experience might serve as guidance for you. Again, have fun, these kind of take-homes are great for finding out how well you are doing and always take notes of the things that you learned.
+
+Here's how I approached it:
+
+## Summary
 
 - [Instructions](#instructions)
 - [Observations](#observations)
@@ -10,14 +32,16 @@
 
 ---
 
-The main details about the task are in the file [instructions.md](/instructions.md).
-Below are some instructions andd observations about the task to help maintain what should be done and which things should be kept in mind. Interesting observations that were found from the log are highlighted with **Caveat**.
+The main details about the task are in the file [instruction:.md](/instructions.md).
+Below are some instructions and observations about the task to help maintain what should be done and which things should be kept in mind. Edge cases that were identified from the log are highlighted with **Caveat**.
 
 ## Instructions
 
 ### Prerequisites
 
-- Go installed on your machine.
+- Docker
+- (optional) Go (for running it outside container environment)
+- (optional) jq
 
 ### Setup
 
@@ -182,6 +206,8 @@ Each line that we are interested appears to have the format of
 - [x] Reduce processing time using concurrency
 
 #### 2. Data Modeling
+
+(My feedback was mostly based on these, I added this as todo)
 
 - [ ] Review and refine entity models (e.g., Match, Player, Event)
 - [ ] Implement business logic within entities
